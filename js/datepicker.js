@@ -176,6 +176,7 @@
 			this.$input.val(this.formatDate(date));
 			this.inputValue = this.$input.val();
 			this.$input.focus();
+			this.$element.trigger('dateClicked.fu.datepicker', date);
 		},
 
 		destroy: function(){
@@ -453,7 +454,7 @@
 			for(i=0; i<rows; i++){
 				$tr = $('<tr></tr>');
 				for(j=0; j<7; j++){
-					$td = $('<td><span><button type="button" class="datepicker-date">' + curDate + '</button></span></td>');
+					$td = $('<td></td>');
 					if(stage===-1){
 						$td.addClass('last-month');
 					}else if(stage===1){
@@ -485,6 +486,12 @@
 					}
 					if(selected && curYear===selected.year && curMonth===selected.month && curDate===selected.date){
 						$td.addClass('selected');
+					}
+
+					if($td.hasClass('restricted')){
+						$td.html('<span><b class="datepicker-date">' + curDate + '</b></span>');
+					}else{
+						$td.html('<span><button type="button" class="datepicker-date">' + curDate + '</button></span>');
 					}
 
 					curDate++;
