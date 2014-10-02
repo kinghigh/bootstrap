@@ -170,9 +170,6 @@
 				if($icon.hasClass('glyphicon-ok') || $icon.hasClass('fueluxicon-bullet') ) {
 					$icon.removeClass('glyphicon-ok').addClass('fueluxicon-bullet');
 				}
-				if($parentFolder.find('.tree-selected').length === 0) {
-					$parentFolder.removeClass('tree-child-selected');
-				}
 
 			} else {
 				$el.addClass ('tree-selected');
@@ -183,10 +180,9 @@
 				if (this.options.multiSelect) {
 					data.push( $el.data() );
 				}
-
-				//add a child selected class to the parent folder
-				$parentFolder.addClass('tree-child-selected');
 			}
+
+			this.checkActive($parentFolder);
 
 			if(data.length) {
 				this.$element.trigger('selected', {selected: data});
@@ -259,6 +255,7 @@
 			var $clickedBranch = $clickedElement.closest('.tree-branch');
 			var $selectedBranch = this.$element.find('.tree-branch.tree-selected');
 			var $clickedBranchIcon = $clickedBranch.find('.icon-folder:first');
+			var $parentFolder = $clickedBranch.parents('.tree-branch');
 			var selectedData = [];
 			var eventType = 'selected';
 
@@ -266,14 +263,11 @@
 			if($clickedBranch.hasClass('tree-selected')) {
 				eventType = 'unselected';
 				$clickedBranch.removeClass('tree-selected');
-
 				$clickedBranchIcon.removeClass('glyphicon-ok');
 
 			} else {
 				$clickedBranch.addClass('tree-selected');
-
 				$clickedBranchIcon.addClass('glyphicon-ok');
-
 			}
 
 			if (this.options.multiSelect) {
@@ -297,6 +291,8 @@
 			if(selectedData.length) {
 				this.$element.trigger('selected.fu.tree', {selected: selectedData});
 			}
+
+			this.checkActive($parentFolder);
 			
 			// Return new list of selected items, the item
 			// clicked, and the type of event:
@@ -316,7 +312,6 @@
 				data.push($(value).data());
 			});
 			return data;
-
 
 		},
 
@@ -340,6 +335,17 @@
 					$folder.empty();
 				}
 			});
+		},
+
+		//check if there are any active items inside a folder
+		checkActive: function(elem) {
+
+			if(elem.find('.tree-selected').length === 0) {
+				elem.removeClass('tree-child-selected');
+			}
+			else {
+				elem.addClass('tree-child-selected');
+			}
 		}
 	};
 

@@ -675,6 +675,7 @@
 				this.$input.val( this.formatDate( date ) );
 				this.inputValue = this.$input.val();
 				this.$input.focus();
+				this.$element.trigger( 'dateClicked.fu.datepicker', date );
 			},
 
 			destroy: function() {
@@ -956,7 +957,7 @@
 				for ( i = 0; i < rows; i++ ) {
 					$tr = $( '<tr></tr>' );
 					for ( j = 0; j < 7; j++ ) {
-						$td = $( '<td><span><button type="button" class="datepicker-date">' + curDate + '</button></span></td>' );
+						$td = $( '<td></td>' );
 						if ( stage === -1 ) {
 							$td.addClass( 'last-month' );
 						} else if ( stage === 1 ) {
@@ -992,6 +993,12 @@
 						}
 						if ( selected && curYear === selected.year && curMonth === selected.month && curDate === selected.date ) {
 							$td.addClass( 'selected' );
+						}
+
+						if ( $td.hasClass( 'restricted' ) ) {
+							$td.html( '<span><b class="datepicker-date">' + curDate + '</b></span>' );
+						} else {
+							$td.html( '<span><button type="button" class="datepicker-date">' + curDate + '</button></span>' );
 						}
 
 						curDate++;
@@ -2930,6 +2937,7 @@
 				var $all = this.$element.find( '.tree-selected' );
 				var data = [];
 				var $icon = $el.find( '.icon-item' );
+				var $parentFolder = $el.parents( '.tree-branch' );
 
 				if ( this.options.multiSelect ) {
 					$.each( $all, function( index, value ) {
@@ -2951,6 +2959,7 @@
 					if ( $icon.hasClass( 'glyphicon-ok' ) || $icon.hasClass( 'fueluxicon-bullet' ) ) {
 						$icon.removeClass( 'glyphicon-ok' ).addClass( 'fueluxicon-bullet' );
 					}
+
 				} else {
 					$el.addClass( 'tree-selected' );
 					// add tree dot back in
@@ -2961,6 +2970,8 @@
 						data.push( $el.data() );
 					}
 				}
+
+				this.checkActive( $parentFolder );
 
 				if ( data.length ) {
 					this.$element.trigger( 'selected', {
@@ -3034,6 +3045,8 @@
 				var $clickedElement = $( clickedElement );
 				var $clickedBranch = $clickedElement.closest( '.tree-branch' );
 				var $selectedBranch = this.$element.find( '.tree-branch.tree-selected' );
+				var $clickedBranchIcon = $clickedBranch.find( '.icon-folder:first' );
+				var $parentFolder = $clickedBranch.parents( '.tree-branch' );
 				var selectedData = [];
 				var eventType = 'selected';
 
@@ -3041,8 +3054,11 @@
 				if ( $clickedBranch.hasClass( 'tree-selected' ) ) {
 					eventType = 'unselected';
 					$clickedBranch.removeClass( 'tree-selected' );
+					$clickedBranchIcon.removeClass( 'glyphicon-ok' );
+
 				} else {
 					$clickedBranch.addClass( 'tree-selected' );
+					$clickedBranchIcon.addClass( 'glyphicon-ok' );
 				}
 
 				if ( this.options.multiSelect ) {
@@ -3069,6 +3085,8 @@
 					} );
 				}
 
+				this.checkActive( $parentFolder );
+
 				// Return new list of selected items, the item
 				// clicked, and the type of event:
 				$clickedElement.trigger( 'updated.fu.tree', {
@@ -3080,10 +3098,6 @@
 
 			selectedItems: function() {
 				var $sel = this.$element.find( '.tree-selected' );
-				var $parentFolder = $sel.parents( '.tree-branch' );
-
-				//add a child selected class to the parent folder
-				$parentFolder.addClass( 'tree-child-selected' );
 
 				var data = [];
 
@@ -3091,7 +3105,6 @@
 					data.push( $( value ).data() );
 				} );
 				return data;
-
 
 			},
 
@@ -3115,6 +3128,16 @@
 						$folder.empty();
 					}
 				} );
+			},
+
+			//check if there are any active items inside a folder
+			checkActive: function( elem ) {
+
+				if ( elem.find( '.tree-selected' ).length === 0 ) {
+					elem.removeClass( 'tree-child-selected' );
+				} else {
+					elem.addClass( 'tree-child-selected' );
+				}
 			}
 		};
 
@@ -4557,6 +4580,15 @@
 			constructor: Repeater,
 
 			clear: function( options ) {
+				options = options || {};
+
+				if ( !options.preserve ) {
+					//Just trash everything because preserve is false
+					this.$canvas.empty();
+					return;
+				}
+				//otherwise, scan and preserve if appropriate...
+
 				var scan = function( cont ) {
 					var keep = [];
 					cont.children().each( function() {
@@ -4575,12 +4607,14 @@
 					cont.append( keep );
 				};
 
-				options = options || {};
 
-				if ( !options.preserve ) {
-					this.$canvas.empty();
-				} else if ( !this.infiniteScrollingEnabled || options.clearInfinite ) {
+				//Make sure not to trash everything if infiniteScoll is enabled unless they explicitly say to do so
+				if ( !this.infiniteScrollingEnabled ) {
 					scan( this.$canvas );
+				} else if ( options.clearInfinite ) {
+					scan( this.$canvas );
+				} else {
+					//do nothing for some reason... Is this a bug?
 				}
 			},
 
@@ -5124,6 +5158,7 @@
 			$.fn.repeater = old;
 			return this;
 		};
+
 
 
 	} )( jQuery );
