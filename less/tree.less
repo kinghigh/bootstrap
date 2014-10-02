@@ -87,7 +87,9 @@
 				.tree-branch-name {
 					background-color: #bebebe;
 				}
+
 			}
+
 		}
 
 		.tree-branch-children {
@@ -166,6 +168,12 @@
 			&:hover {
 				background-color: @treeSelectBackground;
 				color: #fff;
+			}
+		}
+
+		.tree-branch.tree-selected > .tree-branch-header {
+			.glyphicon-ok:before {
+				content: "\e013";
 			}
 		}
 

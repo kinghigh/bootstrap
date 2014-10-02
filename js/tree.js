@@ -148,6 +148,7 @@
 			var $all = this.$element.find('.tree-selected');
 			var data = [];
 			var $icon = $el.find('.icon-item');
+			var $parentFolder = $el.parents('.tree-branch');
 
 			if (this.options.multiSelect) {
 				$.each($all, function(index, value) {
@@ -169,6 +170,10 @@
 				if($icon.hasClass('glyphicon-ok') || $icon.hasClass('fueluxicon-bullet') ) {
 					$icon.removeClass('glyphicon-ok').addClass('fueluxicon-bullet');
 				}
+				if($parentFolder.find('.tree-selected').length === 0) {
+					$parentFolder.removeClass('tree-child-selected');
+				}
+
 			} else {
 				$el.addClass ('tree-selected');
 				// add tree dot back in
@@ -178,6 +183,9 @@
 				if (this.options.multiSelect) {
 					data.push( $el.data() );
 				}
+
+				//add a child selected class to the parent folder
+				$parentFolder.addClass('tree-child-selected');
 			}
 
 			if(data.length) {
@@ -250,6 +258,7 @@
 			var $clickedElement = $(clickedElement);
 			var $clickedBranch = $clickedElement.closest('.tree-branch');
 			var $selectedBranch = this.$element.find('.tree-branch.tree-selected');
+			var $clickedBranchIcon = $clickedBranch.find('.icon-folder:first');
 			var selectedData = [];
 			var eventType = 'selected';
 
@@ -257,8 +266,14 @@
 			if($clickedBranch.hasClass('tree-selected')) {
 				eventType = 'unselected';
 				$clickedBranch.removeClass('tree-selected');
+
+				$clickedBranchIcon.removeClass('glyphicon-ok');
+
 			} else {
 				$clickedBranch.addClass('tree-selected');
+
+				$clickedBranchIcon.addClass('glyphicon-ok');
+
 			}
 
 			if (this.options.multiSelect) {
@@ -294,10 +309,6 @@
 
 		selectedItems: function () {
 			var $sel = this.$element.find('.tree-selected');
-			var $parentFolder = $sel.parents('.tree-branch');
-
-			//add a child selected class to the parent folder
-			$parentFolder.addClass('tree-child-selected');
 
 			var data = [];
 
