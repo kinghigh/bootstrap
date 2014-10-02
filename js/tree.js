@@ -294,12 +294,19 @@
 
 		selectedItems: function () {
 			var $sel = this.$element.find('.tree-selected');
+			var $parentFolder = $sel.parents('.tree-branch');
+
+			//add a child selected class to the parent folder
+			$parentFolder.addClass('tree-child-selected');
+
 			var data = [];
 
 			$.each($sel, function (index, value) {
 				data.push($(value).data());
 			});
 			return data;
+
+
 		},
 
 		// collapses open folders
