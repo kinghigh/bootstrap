@@ -33,12 +33,13 @@
 		margin-left: 45px;
 	}
 
-	.tree-open > .tree-branch-header .glyphicon-play {
+	.branch-open > .tree-branch-header .glyphicon-play {
 		transform:rotate(90deg);
 		-ms-transform:rotate(90deg);
 		-webkit-transform:rotate(90deg);
 		position: relative;
-		left: -5px;
+		top: -2px;
+		left: 8px !important;
 	}
 
 	[data-children=false] > .tree-branch-header .icon-caret:before {
@@ -64,6 +65,10 @@
 					top: -2px;
 				}
 
+			}
+
+			.checkbox-custom:before {
+				top: 4px;
 			}
 
 			.tree-branch-name {
@@ -141,6 +146,7 @@
 			.icon-caret {
 				background-color: transparent;
 				border: 0;
+				left: 10px;
 			}
 
 			.icon-caret:hover {
@@ -168,12 +174,6 @@
 			&:hover {
 				background-color: @treeSelectBackground;
 				color: #fff;
-			}
-		}
-
-		.tree-branch.tree-selected > .tree-branch-header {
-			.glyphicon-ok:before {
-				content: "\e013";
 			}
 		}
 

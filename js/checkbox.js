@@ -92,6 +92,7 @@
 		check: function () {
 			this.state.checked = true;
 			this.$element.prop('checked', true);
+			this.$element.prop('intermediate', false);
 			this._setCheckedClass();
 			this.$element.trigger( 'checked.fu.checkbox' );
 		},
@@ -99,8 +100,17 @@
 		uncheck: function () {
 			this.state.checked = false;
 			this.$element.prop('checked', false);
+			this.$element.prop('intermediate', false);
 			this._resetClasses();
 			this.$element.trigger( 'unchecked.fu.checkbox' );
+		},
+		intermediate: function () {
+			this.state.checked = false;
+			this.$element.prop('checked', false);
+			this.$element.prop('intermediate', true);
+			this._resetClasses();
+			this._setIntermediateClass();
+			this.$element.trigger( 'intermediate.fu.checkbox' );
 		},
 
 		isChecked: function () {
@@ -179,6 +189,14 @@
 
 			if( this.$parent ) {
 				this.$parent.addClass('checked');
+			}
+		},
+
+		_setIntermediateClass: function() {
+			this.$label.addClass('intermediate');
+
+			if( this.$parent ) {
+				this.$parent.addClass('intermediate');
 			}
 		},
 

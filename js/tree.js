@@ -214,12 +214,10 @@
 
 			// manipulate branch/folder
 			var eventType, classToTarget, classToAdd;
-			if ($el.find('.glyphicon-folder-close').length) {
+			if ($branch.hasClass('branch-closed')) {
 				eventType = 'opened';
-				classToTarget = '.glyphicon-folder-close';
-				classToAdd = 'glyphicon-folder-open';
 
-				$branch.addClass('tree-open');
+				$branch.addClass('branch-open').removeClass('branch-closed');
 				$branch.attr('aria-expanded', 'true');
 
 				$treeFolderContentFirstChild.removeClass('hide');
@@ -227,12 +225,10 @@
 					this.populate($treeFolderContent);
 				}
 
-			} else if($el.find('.glyphicon-folder-open')) {
+			} else if($branch.hasClass('branch-open')) {
 				eventType = 'closed';
-				classToTarget = '.glyphicon-folder-open';
-				classToAdd = 'glyphicon-folder-close';
 
-				$branch.removeClass('tree-open');
+				$branch.removeClass('branch-open').addClass('branch-closed');
 				$branch.attr('aria-expanded', 'false');
 				$treeFolderContentFirstChild.addClass('hide');
 
@@ -242,10 +238,6 @@
 				}
 
 			}
-
-			$branch.find('> .tree-branch-header .icon-folder').eq(0)
-				.removeClass('glyphicon-folder-close glyphicon-folder-open')
-				.addClass(classToAdd);
 
 			this.$element.trigger(eventType, $branch.data());
 		},
@@ -292,7 +284,7 @@
 				this.$element.trigger('selected.fu.tree', {selected: selectedData});
 			}
 
-			this.checkActive($parentFolder);
+			this.checkActive($parentFolder,$clickedBranch);
 			
 			// Return new list of selected items, the item
 			// clicked, and the type of event:
@@ -338,13 +330,40 @@
 		},
 
 		//check if there are any active items inside a folder
-		checkActive: function(elem) {
+		checkActive: function(parent,elem) {
 
-			if(elem.find('.tree-selected').length === 0) {
-				elem.removeClass('tree-child-selected');
+			if(parent.find('.tree-selected').length === 0) {
+				parent.removeClass('tree-child-selected');
 			}
 			else {
-				elem.addClass('tree-child-selected');
+				parent.addClass('tree-child-selected');
+
+				var checked = elem.find('.checkbox').checkbox('isChecked');
+				var	siblings = parent.siblings();
+				elem.find('.checkbox').checkbox('check');
+
+				function checkSiblings(el) {
+						var all = true;
+
+					el.siblings().each(function() {
+						return all = ($(this).children('.checkbox').checkbox("isChecked") === true);
+					});
+
+					if (all && checked) {
+						parent.children('.checkbox').checkbox('check');
+						checkSiblings(parent);
+					} else if (all && !checked) {
+						parent.children('.checkbox').checkbox('check');
+						if (parent.find('input[type="checkbox"]:checked').length > 0){
+							parent.children('.checkbox').checkbox('intermediate');
+						}
+						checkSiblings(parent);
+					} else {
+						el.find('.checkbox').first().checkbox('intermediate');
+					}
+				}
+
+				checkSiblings(parent);
 			}
 		}
 	};
