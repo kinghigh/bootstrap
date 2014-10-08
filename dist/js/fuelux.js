@@ -50,7 +50,8 @@
 			this.$toggleContainer = this.$element.attr( 'data-toggle' );
 			this.state = {
 				disabled: false,
-				checked: false
+				checked: false,
+				intermediate: false
 			};
 
 			if ( this.$parent.length === 0 ) {
@@ -106,16 +107,29 @@
 
 			check: function() {
 				this.state.checked = true;
+				this.state.intermediate = false;
 				this.$element.prop( 'checked', true );
+				this.$element.prop( 'intermediate', false );
+				this._resetClasses();
 				this._setCheckedClass();
 				this.$element.trigger( 'checked.fu.checkbox' );
 			},
 
 			uncheck: function() {
 				this.state.checked = false;
+				this.state.intermediate = false;
 				this.$element.prop( 'checked', false );
+				this.$element.prop( 'intermediate', false );
 				this._resetClasses();
 				this.$element.trigger( 'unchecked.fu.checkbox' );
+			},
+			intermediate: function() {
+				this.state.intermediate = true;
+				this.$element.prop( 'checked', false );
+				this.$element.prop( 'intermediate', true );
+				this._resetClasses();
+				this._setIntermediateClass();
+				this.$element.trigger( 'intermediate.fu.checkbox' );
 			},
 
 			isChecked: function() {
@@ -164,6 +178,10 @@
 					classesToRemove.push( 'disabled' );
 				}
 
+				if ( !this.state.intermediate ) {
+					classesToRemove.push( 'intermediate' );
+				}
+
 				classesToRemove = classesToRemove.join( ' ' );
 
 				this.$label.removeClass( classesToRemove );
@@ -194,6 +212,14 @@
 
 				if ( this.$parent ) {
 					this.$parent.addClass( 'checked' );
+				}
+			},
+
+			_setIntermediateClass: function() {
+				this.$label.addClass( 'intermediate' );
+
+				if ( this.$parent ) {
+					this.$parent.addClass( 'intermediate' );
 				}
 			},
 
@@ -2829,6 +2855,11 @@
 					this.selectFolder( $( ev.currentTarget ) );
 				}, this ) );
 			}
+			if ( this.options.intermediate ) {
+				this.$element.on( 'click.fu.tree', '.checkbox', $.proxy( function( ev ) {
+					this.selectFolder( $( ev.currentTarget ) );
+				}, this ) );
+			}
 
 			this.render();
 		};
@@ -2866,10 +2897,12 @@
 							$entity = self.$element.find( '[data-template=treebranch]:eq(0)' ).clone().removeClass( 'hide' ).removeAttr( 'data-template' );
 							$entity.data( value );
 							$entity.find( '.tree-branch-name > .tree-label' ).html( value.name );
-						} else if ( value.type === 'item' ) {
-							$entity = self.$element.find( '[data-template=treeitem]:eq(0)' ).clone().removeClass( 'hide' ).removeAttr( 'data-template' );
-							$entity.find( '.tree-item-name > .tree-label' ).html( value.name );
-							$entity.data( value );
+						} else {
+							if ( value.type === 'item' ) {
+								$entity = self.$element.find( '[data-template=treeitem]:eq(0)' ).clone().removeClass( 'hide' ).removeAttr( 'data-template' );
+								$entity.find( '.tree-item-name > .tree-label' ).html( value.name );
+								$entity.data( value );
+							}
 						}
 
 						// Decorate $entity with data making the element
@@ -2946,10 +2979,12 @@
 							data.push( $( value ).data() );
 						}
 					} );
-				} else if ( $all[ 0 ] !== $el[ 0 ] ) {
-					$all.removeClass( 'tree-selected' )
-						.find( '.glyphicon' ).removeClass( 'glyphicon-ok' ).addClass( 'fueluxicon-bullet' );
-					data.push( $el.data() );
+				} else {
+					if ( $all[ 0 ] !== $el[ 0 ] ) {
+						$all.removeClass( 'tree-selected' )
+							.find( '.glyphicon' ).removeClass( 'glyphicon-ok' ).addClass( 'fueluxicon-bullet' );
+						data.push( $el.data() );
+					}
 				}
 
 				var eventType = 'selected';
@@ -2970,8 +3005,6 @@
 						data.push( $el.data() );
 					}
 				}
-
-				this.checkActive( $parentFolder );
 
 				if ( data.length ) {
 					this.$element.trigger( 'selected', {
@@ -3005,12 +3038,10 @@
 
 				// manipulate branch/folder
 				var eventType, classToTarget, classToAdd;
-				if ( $el.find( '.glyphicon-folder-close' ).length ) {
+				if ( $branch.hasClass( 'branch-closed' ) ) {
 					eventType = 'opened';
-					classToTarget = '.glyphicon-folder-close';
-					classToAdd = 'glyphicon-folder-open';
 
-					$branch.addClass( 'tree-open' );
+					$branch.addClass( 'branch-open' ).removeClass( 'branch-closed' );
 					$branch.attr( 'aria-expanded', 'true' );
 
 					$treeFolderContentFirstChild.removeClass( 'hide' );
@@ -3018,25 +3049,21 @@
 						this.populate( $treeFolderContent );
 					}
 
-				} else if ( $el.find( '.glyphicon-folder-open' ) ) {
-					eventType = 'closed';
-					classToTarget = '.glyphicon-folder-open';
-					classToAdd = 'glyphicon-folder-close';
+				} else {
+					if ( $branch.hasClass( 'branch-open' ) ) {
+						eventType = 'closed';
 
-					$branch.removeClass( 'tree-open' );
-					$branch.attr( 'aria-expanded', 'false' );
-					$treeFolderContentFirstChild.addClass( 'hide' );
+						$branch.removeClass( 'branch-open' ).addClass( 'branch-closed' );
+						$branch.attr( 'aria-expanded', 'false' );
+						$treeFolderContentFirstChild.addClass( 'hide' );
 
-					// remove if no cache
-					if ( !this.options.cacheItems ) {
-						$treeFolderContentFirstChild.empty();
+						// remove if no cache
+						if ( !this.options.cacheItems ) {
+							$treeFolderContentFirstChild.empty();
+						}
+
 					}
-
 				}
-
-				$branch.find( '> .tree-branch-header .icon-folder' ).eq( 0 )
-					.removeClass( 'glyphicon-folder-close glyphicon-folder-open' )
-					.addClass( classToAdd );
 
 				this.$element.trigger( eventType, $branch.data() );
 			},
@@ -3046,7 +3073,7 @@
 				var $clickedBranch = $clickedElement.closest( '.tree-branch' );
 				var $selectedBranch = this.$element.find( '.tree-branch.tree-selected' );
 				var $clickedBranchIcon = $clickedBranch.find( '.icon-folder:first' );
-				var $parentFolder = $clickedBranch.parents( '.tree-branch' );
+				var $parentFolder = $clickedBranch.parent().closest( '.tree-branch' );
 				var selectedData = [];
 				var eventType = 'selected';
 
@@ -3073,10 +3100,12 @@
 						}
 					} );
 
-				} else if ( $selectedBranch[ 0 ] !== $clickedElement[ 0 ] ) {
-					$selectedBranch.removeClass( 'tree-selected' );
+				} else {
+					if ( $selectedBranch[ 0 ] !== $clickedElement[ 0 ] ) {
+						$selectedBranch.removeClass( 'tree-selected' );
 
-					selectedData.push( $clickedBranch.data() );
+						selectedData.push( $clickedBranch.data() );
+					}
 				}
 
 				if ( selectedData.length ) {
@@ -3085,7 +3114,9 @@
 					} );
 				}
 
-				this.checkActive( $parentFolder );
+				if ( this.options.intermediate ) {
+					this.checkActive( $parentFolder, $clickedBranch, eventType );
+				}
 
 				// Return new list of selected items, the item
 				// clicked, and the type of event:
@@ -3131,16 +3162,43 @@
 			},
 
 			//check if there are any active items inside a folder
-			checkActive: function( elem ) {
+			checkActive: function( parentContainer, elem, type ) {
+				var checkboxElem = elem.find( '.checkbox' ).first();
+				var checked = checkboxElem.checkbox( 'isChecked' );
+				var container = elem;
 
-				if ( elem.find( '.tree-selected' ).length === 0 ) {
-					elem.removeClass( 'tree-child-selected' );
+				if ( checked ) {
+					checkboxElem.checkbox( 'uncheck' );
+					container.find( 'input[type="checkbox"]' ).checkbox( 'uncheck' );
 				} else {
-					elem.addClass( 'tree-child-selected' );
+					checkboxElem.checkbox( 'check' );
+					container.find( 'input[type="checkbox"]' ).checkbox( 'check' );
 				}
+				checked = checkboxElem.checkbox( 'isChecked' );
+
+
+				function checkSiblings( el ) {
+					var parent = el.parent().parent(),
+						all = true;
+
+					el.siblings().each( function() {
+						return all = ( $( this ).find( '.checkbox' ).checkbox( 'isChecked' ) === checked );
+					} );
+
+					if ( all && checked ) {
+						parent.find( '.checkbox' ).first().checkbox( 'check' );
+						checkSiblings( parent );
+					} else if ( all && !checked ) {
+						parent.children( 'input[type="checkbox"]' ).prop( "checked", checked );
+						parent.children( 'input[type="checkbox"]' ).prop( "indeterminate", ( parent.find( 'input[type="checkbox"]:checked' ).length > 0 ) );
+						checkSiblings( parent );
+					} else {
+						parent.find( '.checkbox' ).first().checkbox( 'intermediate' );
+					}
+				}
+				checkSiblings( container );
 			}
 		};
-
 
 		// TREE PLUGIN DEFINITION
 
@@ -3164,7 +3222,8 @@
 			dataSource: function( options, callback ) {},
 			multiSelect: false,
 			cacheItems: true,
-			folderSelect: true
+			folderSelect: true,
+			intermediate: false
 		};
 
 		$.fn.tree.Constructor = Tree;
@@ -3173,7 +3232,6 @@
 			$.fn.tree = old;
 			return this;
 		};
-
 
 		// NO DATA-API DUE TO NEED OF DATA-SOURCE
 

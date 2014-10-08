@@ -36,7 +36,7 @@
 		this.$label = this.$element.parent();
 		this.$parent = this.$label.parent('.checkbox');
 		this.$toggleContainer = this.$element.attr('data-toggle');
-		this.state = { disabled: false, checked: false };
+		this.state = { disabled: false, checked: false, intermediate: false };
 
 		if( this.$parent.length === 0 ) {
 			this.$parent = null;
@@ -91,21 +91,24 @@
 
 		check: function () {
 			this.state.checked = true;
+			this.state.intermediate = false;
 			this.$element.prop('checked', true);
 			this.$element.prop('intermediate', false);
+			this._resetClasses();
 			this._setCheckedClass();
 			this.$element.trigger( 'checked.fu.checkbox' );
 		},
 
 		uncheck: function () {
 			this.state.checked = false;
+			this.state.intermediate = false;
 			this.$element.prop('checked', false);
 			this.$element.prop('intermediate', false);
 			this._resetClasses();
 			this.$element.trigger( 'unchecked.fu.checkbox' );
 		},
 		intermediate: function () {
-			this.state.checked = false;
+			this.state.intermediate = true;
 			this.$element.prop('checked', false);
 			this.$element.prop('intermediate', true);
 			this._resetClasses();
@@ -157,6 +160,10 @@
 
 			if( !this.state.disabled ) {
 				classesToRemove.push( 'disabled' );
+			}
+
+			if( !this.state.intermediate ) {
+				classesToRemove.push( 'intermediate' );
 			}
 
 			classesToRemove = classesToRemove.join( ' ' );

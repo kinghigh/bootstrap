@@ -124,6 +124,11 @@
   cursor: not-allowed;
   opacity: .5;
 }
+.fuelux .checkbox-custom.intermediate:before {
+  background: #39b3d7;
+  border-color: #39b3d7;
+  content: "\2212";
+}
 .fuelux .checkbox-custom.checkbox-inline:before {
   left: 0;
   top: 3px;
@@ -1430,12 +1435,13 @@ END
 .fuelux .tree .tree-loader {
   margin-left: 45px;
 }
-.fuelux .tree .tree-open > .tree-branch-header .glyphicon-play {
+.fuelux .tree .branch-open > .tree-branch-header .glyphicon-play {
   transform: rotate(90deg);
   -ms-transform: rotate(90deg);
   -webkit-transform: rotate(90deg);
   position: relative;
-  left: -5px;
+  top: -2px;
+  left: 8px !important;
 }
 .fuelux .tree [data-children=false] > .tree-branch-header .icon-caret:before {
   content: '\00a0';
@@ -1454,6 +1460,12 @@ END
 .fuelux .tree .tree-branch .tree-branch-header .glyphicon-play:before {
   position: relative;
   top: -2px;
+}
+.fuelux .tree .tree-branch .tree-branch-header .checkbox {
+  display: inline-block;
+}
+.fuelux .tree .tree-branch .tree-branch-header .checkbox .checkbox-custom:before {
+  top: -12px;
 }
 .fuelux .tree .tree-branch .tree-branch-header .tree-branch-name {
   white-space: nowrap;
@@ -1504,6 +1516,7 @@ END
 .fuelux .tree.tree-folder-select .tree-branch .icon-caret {
   background-color: transparent;
   border: 0;
+  left: 10px;
 }
 .fuelux .tree.tree-folder-select .tree-branch .icon-caret:hover {
   cursor: pointer;
@@ -1525,8 +1538,9 @@ END
   background-color: #4f4f4f;
   color: #fff;
 }
-.fuelux .tree.tree-folder-select .tree-branch.tree-selected > .tree-branch-header .glyphicon-ok:before {
-  content: "\e013";
+.fuelux .tree.tree-intermediate .tree-branch.tree-selected > .tree-branch-header .tree-branch-name {
+  background-color: transparent;
+  color: #000;
 }
 .fuelux .wizard {
   *zoom: 1;

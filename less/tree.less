@@ -67,8 +67,11 @@
 
 			}
 
-			.checkbox-custom:before {
-				top: 4px;
+			.checkbox {
+				display: inline-block;
+				.checkbox-custom:before {
+					top: -12px;
+				}
 			}
 
 			.tree-branch-name {
@@ -175,6 +178,16 @@
 				background-color: @treeSelectBackground;
 				color: #fff;
 			}
+		}
+
+	}
+
+	// intermediate checkbox enabled
+	&.tree-intermediate {
+
+		.tree-branch.tree-selected > .tree-branch-header .tree-branch-name {
+			background-color: transparent;
+			color: #000;
 		}
 
 	}

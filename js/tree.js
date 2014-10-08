@@ -21,7 +21,7 @@
 	}
 }(function ($) {
 	// -- END UMD WRAPPER PREFACE --
-		
+
 	// -- BEGIN MODULE CODE HERE --
 
 	var old = $.fn.tree;
@@ -32,13 +32,26 @@
 		this.$element = $(element);
 		this.options = $.extend({}, $.fn.tree.defaults, options);
 
-		this.$element.on('click.fu.tree', '.tree-item', $.proxy( function(ev) { this.selectItem(ev.currentTarget); } ,this));
-		this.$element.on('click.fu.tree', '.tree-branch-name', $.proxy( function(ev) { this.openFolder(ev.currentTarget); }, this));
+		this.$element.on('click.fu.tree', '.tree-item', $.proxy(function (ev) {
+			this.selectItem(ev.currentTarget);
+		}, this));
+		this.$element.on('click.fu.tree', '.tree-branch-name', $.proxy(function (ev) {
+			this.openFolder(ev.currentTarget);
+		}, this));
 
-		if( this.options.folderSelect ){
+		if (this.options.folderSelect) {
 			this.$element.off('click.fu.tree', '.tree-branch-name');
-			this.$element.on('click.fu.tree', '.icon-caret', $.proxy( function(ev) { this.openFolder($(ev.currentTarget).parent()); }, this));
-			this.$element.on('click.fu.tree', '.tree-branch-name', $.proxy( function(ev) { this.selectFolder($(ev.currentTarget)); }, this));
+			this.$element.on('click.fu.tree', '.icon-caret', $.proxy(function (ev) {
+				this.openFolder($(ev.currentTarget).parent());
+			}, this));
+			this.$element.on('click.fu.tree', '.tree-branch-name', $.proxy(function (ev) {
+				this.selectFolder($(ev.currentTarget));
+			}, this));
+		}
+		if (this.options.intermediate) {
+			this.$element.on('click.fu.tree', '.checkbox', $.proxy(function (ev) {
+				this.selectFolder($(ev.currentTarget));
+			}, this));
 		}
 
 		this.render();
@@ -47,7 +60,7 @@
 	Tree.prototype = {
 		constructor: Tree,
 
-		destroy: function() {
+		destroy: function () {
 			// any external bindings [none]
 			// empty elements to return to original markup
 			this.$element.find("li:not([data-template])").remove();
@@ -67,20 +80,22 @@
 			var loader = $parent.find('.tree-loader:eq(0)');
 
 			loader.removeClass('hide');
-			this.options.dataSource( $parent.data() , function (items) {
+			this.options.dataSource($parent.data(), function (items) {
 				loader.addClass('hide');
 
-				$.each( items.data, function(index, value) {
+				$.each(items.data, function (index, value) {
 					var $entity;
 
-					if(value.type === 'folder') {
+					if (value.type === 'folder') {
 						$entity = self.$element.find('[data-template=treebranch]:eq(0)').clone().removeClass('hide').removeAttr('data-template');
 						$entity.data(value);
 						$entity.find('.tree-branch-name > .tree-label').html(value.name);
-					} else if (value.type === 'item') {
-						$entity = self.$element.find('[data-template=treeitem]:eq(0)').clone().removeClass('hide').removeAttr('data-template');
-						$entity.find('.tree-item-name > .tree-label').html(value.name);
-						$entity.data(value);
+					} else {
+						if (value.type === 'item') {
+							$entity = self.$element.find('[data-template=treeitem]:eq(0)').clone().removeClass('hide').removeAttr('data-template');
+							$entity.find('.tree-item-name > .tree-label').html(value.name);
+							$entity.data(value);
+						}
 					}
 
 					// Decorate $entity with data making the element
@@ -102,36 +117,36 @@
 
 					// add attributes to tree-branch or tree-item
 					var dataAttributes = value.dataAttributes || [];
-					$.each(dataAttributes, function(key, value) {
+					$.each(dataAttributes, function (key, value) {
 						switch (key) {
-						case 'class':
-						case 'classes':
-						case 'className':
-							$entity.addClass(value);
-							break;
-						
-						// allow custom icons
-						case 'data-icon':
-							$entity.find('.icon-item').removeClass().addClass('icon-item ' + value);
-							$entity.attr(key, value);
-							break;
+							case 'class':
+							case 'classes':
+							case 'className':
+								$entity.addClass(value);
+								break;
 
-						// ARIA support
-						case 'id':
-							$entity.attr(key, value);
-							$entity.attr('aria-labelledby', value + '-label');
-							$entity.find('.tree-branch-name > .tree-label').attr('id', value + '-label');
-							break;
+							// allow custom icons
+							case 'data-icon':
+								$entity.find('.icon-item').removeClass().addClass('icon-item ' + value);
+								$entity.attr(key, value);
+								break;
 
-						// id, style, data-*
-						default:
-							$entity.attr(key, value);
-							break;
+							// ARIA support
+							case 'id':
+								$entity.attr(key, value);
+								$entity.attr('aria-labelledby', value + '-label');
+								$entity.find('.tree-branch-name > .tree-label').attr('id', value + '-label');
+								break;
+
+							// id, style, data-*
+							default:
+								$entity.attr(key, value);
+								break;
 						}
 					});
 
 					// add child nodes
-					if($el.hasClass('tree-branch-header')) {
+					if ($el.hasClass('tree-branch-header')) {
 						$parent.find('.tree-branch-children:eq(0)').append($entity);
 					} else {
 						$el.append($entity);
@@ -151,40 +166,40 @@
 			var $parentFolder = $el.parents('.tree-branch');
 
 			if (this.options.multiSelect) {
-				$.each($all, function(index, value) {
+				$.each($all, function (index, value) {
 					var $val = $(value);
-					if($val[0] !== $el[0]) {
-						data.push( $(value).data() );
+					if ($val[0] !== $el[0]) {
+						data.push($(value).data());
 					}
 				});
-			} else if ($all[0] !== $el[0]) {
-				$all.removeClass('tree-selected')
-					.find('.glyphicon').removeClass('glyphicon-ok').addClass('fueluxicon-bullet');
-				data.push($el.data());
+			} else {
+				if ($all[0] !== $el[0]) {
+					$all.removeClass('tree-selected')
+						.find('.glyphicon').removeClass('glyphicon-ok').addClass('fueluxicon-bullet');
+					data.push($el.data());
+				}
 			}
 
 			var eventType = 'selected';
-			if($el.hasClass('tree-selected')) {
+			if ($el.hasClass('tree-selected')) {
 				eventType = 'unselected';
 				$el.removeClass('tree-selected');
-				if($icon.hasClass('glyphicon-ok') || $icon.hasClass('fueluxicon-bullet') ) {
+				if ($icon.hasClass('glyphicon-ok') || $icon.hasClass('fueluxicon-bullet')) {
 					$icon.removeClass('glyphicon-ok').addClass('fueluxicon-bullet');
 				}
 
 			} else {
-				$el.addClass ('tree-selected');
+				$el.addClass('tree-selected');
 				// add tree dot back in
-				if($icon.hasClass('glyphicon-ok') || $icon.hasClass('fueluxicon-bullet') ) {
+				if ($icon.hasClass('glyphicon-ok') || $icon.hasClass('fueluxicon-bullet')) {
 					$icon.removeClass('fueluxicon-bullet').addClass('glyphicon-ok');
 				}
 				if (this.options.multiSelect) {
-					data.push( $el.data() );
+					data.push($el.data());
 				}
 			}
 
-			this.checkActive($parentFolder);
-
-			if(data.length) {
+			if (data.length) {
 				this.$element.trigger('selected', {selected: data});
 			}
 
@@ -225,18 +240,20 @@
 					this.populate($treeFolderContent);
 				}
 
-			} else if($branch.hasClass('branch-open')) {
-				eventType = 'closed';
+			} else {
+				if ($branch.hasClass('branch-open')) {
+					eventType = 'closed';
 
-				$branch.removeClass('branch-open').addClass('branch-closed');
-				$branch.attr('aria-expanded', 'false');
-				$treeFolderContentFirstChild.addClass('hide');
+					$branch.removeClass('branch-open').addClass('branch-closed');
+					$branch.attr('aria-expanded', 'false');
+					$treeFolderContentFirstChild.addClass('hide');
 
-				// remove if no cache
-				if (!this.options.cacheItems) {
-					$treeFolderContentFirstChild.empty();
+					// remove if no cache
+					if (!this.options.cacheItems) {
+						$treeFolderContentFirstChild.empty();
+					}
+
 				}
-
 			}
 
 			this.$element.trigger(eventType, $branch.data());
@@ -247,12 +264,12 @@
 			var $clickedBranch = $clickedElement.closest('.tree-branch');
 			var $selectedBranch = this.$element.find('.tree-branch.tree-selected');
 			var $clickedBranchIcon = $clickedBranch.find('.icon-folder:first');
-			var $parentFolder = $clickedBranch.parents('.tree-branch');
+			var $parentFolder = $clickedBranch.parent().closest('.tree-branch');
 			var selectedData = [];
 			var eventType = 'selected';
 
 			// select clicked item
-			if($clickedBranch.hasClass('tree-selected')) {
+			if ($clickedBranch.hasClass('tree-selected')) {
 				eventType = 'unselected';
 				$clickedBranch.removeClass('tree-selected');
 				$clickedBranchIcon.removeClass('glyphicon-ok');
@@ -264,28 +281,32 @@
 
 			if (this.options.multiSelect) {
 
-			// get currently selected
+				// get currently selected
 				$selectedBranch = this.$element.find('.tree-branch.tree-selected');
 
-				$.each($selectedBranch, function(index, value) {
+				$.each($selectedBranch, function (index, value) {
 					var $value = $(value);
-					if($value[0] !== $clickedElement[0]) {
-						selectedData.push( $(value).data() );
+					if ($value[0] !== $clickedElement[0]) {
+						selectedData.push($(value).data());
 					}
 				});
 
-			} else if ($selectedBranch[0] !== $clickedElement[0]) {
-				$selectedBranch.removeClass('tree-selected');
+			} else {
+				if ($selectedBranch[0] !== $clickedElement[0]) {
+					$selectedBranch.removeClass('tree-selected');
 
-				selectedData.push($clickedBranch.data());
+					selectedData.push($clickedBranch.data());
+				}
 			}
 
-			if(selectedData.length) {
+			if (selectedData.length) {
 				this.$element.trigger('selected.fu.tree', {selected: selectedData});
 			}
 
-			this.checkActive($parentFolder,$clickedBranch);
-			
+			if (this.options.intermediate) {
+				this.checkActive($parentFolder, $clickedBranch, eventType);
+			}
+
 			// Return new list of selected items, the item
 			// clicked, and the type of event:
 			$clickedElement.trigger('updated.fu.tree', {
@@ -330,68 +351,70 @@
 		},
 
 		//check if there are any active items inside a folder
-		checkActive: function(parent,elem) {
+		checkActive: function (parentContainer, elem, type) {
+			var checkboxElem = elem.find('.checkbox').first();
+			var checked = checkboxElem.checkbox('isChecked');
+			var	container = elem;
 
-			if(parent.find('.tree-selected').length === 0) {
-				parent.removeClass('tree-child-selected');
+			if (checked){
+				checkboxElem.checkbox('uncheck');
+				container.find('input[type="checkbox"]').checkbox('uncheck');
 			}
 			else {
-				parent.addClass('tree-child-selected');
-
-				var checked = elem.find('.checkbox').checkbox('isChecked');
-				var	siblings = parent.siblings();
-				elem.find('.checkbox').checkbox('check');
-
-				function checkSiblings(el) {
-						var all = true;
-
-					el.siblings().each(function() {
-						return all = ($(this).children('.checkbox').checkbox("isChecked") === true);
-					});
-
-					if (all && checked) {
-						parent.children('.checkbox').checkbox('check');
-						checkSiblings(parent);
-					} else if (all && !checked) {
-						parent.children('.checkbox').checkbox('check');
-						if (parent.find('input[type="checkbox"]:checked').length > 0){
-							parent.children('.checkbox').checkbox('intermediate');
-						}
-						checkSiblings(parent);
-					} else {
-						el.find('.checkbox').first().checkbox('intermediate');
-					}
-				}
-
-				checkSiblings(parent);
+				checkboxElem.checkbox('check');
+				container.find('input[type="checkbox"]').checkbox('check');
 			}
+			checked = checkboxElem.checkbox('isChecked');
+
+
+			function checkSiblings(el) {
+				var parent = el.parent().parent(),
+					all = true;
+
+				el.siblings().each(function() {
+					return all = ($(this).find('.checkbox').checkbox('isChecked') === checked);
+				});
+
+				if (all && checked) {
+					parent.find('.checkbox').first().checkbox('check');
+					checkSiblings(parent);
+				} else if (all && !checked) {
+					parent.children('input[type="checkbox"]').prop("checked", checked);
+					parent.children('input[type="checkbox"]').prop("indeterminate", (parent.find('input[type="checkbox"]:checked').length > 0));
+					checkSiblings(parent);
+				} else {
+					parent.find('.checkbox').first().checkbox('intermediate');
+				}
+			}
+			checkSiblings(container);
 		}
 	};
-
 
 	// TREE PLUGIN DEFINITION
 
 	$.fn.tree = function (option) {
-		var args = Array.prototype.slice.call( arguments, 1 );
+		var args = Array.prototype.slice.call(arguments, 1);
 		var methodReturn;
 
 		var $set = this.each(function () {
-			var $this   = $( this );
-			var data    = $this.data( 'fu.tree' );
+			var $this = $(this);
+			var data = $this.data('fu.tree');
 			var options = typeof option === 'object' && option;
 
-			if( !data ) $this.data('fu.tree', (data = new Tree( this, options ) ) );
-			if( typeof option === 'string' ) methodReturn = data[ option ].apply( data, args );
+			if (!data) $this.data('fu.tree', (data = new Tree(this, options) ));
+			if (typeof option === 'string') methodReturn = data[ option ].apply(data, args);
 		});
 
 		return ( methodReturn === undefined ) ? $set : methodReturn;
 	};
 
 	$.fn.tree.defaults = {
-		dataSource: function(options, callback){},
+		dataSource: function (options, callback) {
+		},
 		multiSelect: false,
 		cacheItems: true,
-		folderSelect: true
+		folderSelect: true,
+		intermediate: false
 	};
 
 	$.fn.tree.Constructor = Tree;
@@ -401,9 +424,8 @@
 		return this;
 	};
 
-
 	// NO DATA-API DUE TO NEED OF DATA-SOURCE
 
-// -- BEGIN UMD WRAPPER AFTERWORD --
+	// -- BEGIN UMD WRAPPER AFTERWORD --
 }));
-	// -- END UMD WRAPPER AFTERWORD --
+// -- END UMD WRAPPER AFTERWORD --
