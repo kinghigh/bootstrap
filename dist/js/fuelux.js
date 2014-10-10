@@ -2856,8 +2856,11 @@
 				}, this ) );
 			}
 			if ( this.options.intermediate ) {
-				this.$element.on( 'click.fu.tree', '.checkbox', $.proxy( function( ev ) {
+				this.$element.on( 'click.fu.tree', '.tree-branch-header .checkbox', $.proxy( function( ev ) {
 					this.selectFolder( $( ev.currentTarget ) );
+				}, this ) );
+				this.$element.on( 'click.fu.tree', '.tree-item .checkbox', $.proxy( function( ev ) {
+					this.selectItem( $( ev.currentTarget ) );
 				}, this ) );
 			}
 
@@ -2905,11 +2908,17 @@
 							if ( checked && intermediate ) {
 								$entity.find( '.checkbox' ).checkbox( 'check' );
 							}
+							if ( !value.dataAttributes.hasChildren ) {
+								$entity.find( '.icon-caret' ).remove();
+							}
 						} else {
 							if ( value.type === 'item' ) {
 								$entity = self.$element.find( '[data-template=treeitem]:eq(0)' ).clone().removeClass( 'hide' ).removeAttr( 'data-template' );
 								$entity.find( '.tree-item-name > .tree-label' ).html( value.name );
 								$entity.data( value );
+								if ( checked && intermediate ) {
+									$entity.find( '.checkbox' ).checkbox( 'check' );
+								}
 							}
 						}
 
@@ -3012,6 +3021,9 @@
 					}
 					if ( this.options.multiSelect ) {
 						data.push( $el.data() );
+					}
+					if ( this.options.intermediate ) {
+						this.checkActive( $parentFolder, $el );
 					}
 				}
 
@@ -3125,7 +3137,7 @@
 				}
 
 				if ( this.options.intermediate ) {
-					this.checkActive( $parentFolder, $clickedBranch, eventType );
+					this.checkActive( $parentFolder, $clickedBranch );
 				}
 
 				// Return new list of selected items, the item
@@ -3172,7 +3184,7 @@
 			},
 
 			//check if there are any active items inside a folder
-			checkActive: function( parentContainer, elem, type ) {
+			checkActive: function( parentContainer, elem ) {
 				var checkboxElem = elem.find( '.checkbox' ).first();
 				var checked = checkboxElem.checkbox( 'isChecked' );
 				var container = elem;
@@ -3203,7 +3215,10 @@
 						parent.children( 'input[type="checkbox"]' ).prop( "indeterminate", ( parent.find( 'input[type="checkbox"]:checked' ).length > 0 ) );
 						checkSiblings( parent );
 					} else {
-						parent.find( '.checkbox' ).first().checkbox( 'intermediate' );
+						if ( parent.hasClass( 'tree-branch' ) ) {
+							parent.find( '.checkbox' ).first().checkbox( 'intermediate' );
+						}
+
 					}
 				}
 				checkSiblings( container );

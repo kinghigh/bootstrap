@@ -2,7 +2,21 @@
 	{
 		"name": "Aquire",
 		"type": "folder",
-		"dataAttributes": { "id": "aquire-folder" }
+		"dataAttributes": { "id": "aquire-folder" },
+		"children": [
+			{
+				"name": "POS Receipt",
+				"type": "item"
+			},
+			{
+				"name": "Confirm Subscription",
+				"type": "item"
+			},
+			{
+				"name": "Thanks for Signing Up",
+				"type": "item"
+			}
+		]
 	},
 	{
 		"name": "Onboard",

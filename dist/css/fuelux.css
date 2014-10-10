@@ -1461,12 +1461,6 @@ END
   position: relative;
   top: -2px;
 }
-.fuelux .tree .tree-branch .tree-branch-header .checkbox {
-  display: inline-block;
-}
-.fuelux .tree .tree-branch .tree-branch-header .checkbox .checkbox-custom:before {
-  top: -12px;
-}
 .fuelux .tree .tree-branch .tree-branch-header .tree-branch-name {
   white-space: nowrap;
   border-radius: 6px;
@@ -1538,13 +1532,37 @@ END
   background-color: #4f4f4f;
   color: #fff;
 }
-.fuelux .tree.tree-intermediate .tree-branch.tree-selected > .tree-branch-header .tree-branch-name {
+.fuelux .tree.tree-intermediate .tree-selected > .tree-branch-header .tree-branch-name,
+.fuelux .tree.tree-intermediate .tree-selected.tree-item .tree-item-name {
   background-color: transparent;
   color: #000;
 }
-.fuelux .tree.tree-intermediate .tree-branch.tree-selected > .tree-branch-header .tree-branch-name:hover {
+.fuelux .tree.tree-intermediate .tree-selected > .tree-branch-header .tree-branch-name:hover,
+.fuelux .tree.tree-intermediate .tree-selected.tree-item .tree-item-name:hover {
   background-color: transparent;
   color: #000;
+}
+.fuelux .tree.tree-intermediate .checkbox {
+  display: inline-block;
+}
+.fuelux .tree.tree-intermediate .checkbox .checkbox-custom:before {
+  top: -12px;
+}
+.fuelux .tree.tree-intermediate .tree-item {
+  margin-left: 8px;
+}
+.fuelux .tree.tree-intermediate .tree-item .tree-label {
+  padding-left: 5px;
+}
+.fuelux .tree.tree-intermediate .tree-branch-header .icon-caret {
+  padding-right: 0;
+  margin-right: -5px;
+  left: 6px;
+}
+.fuelux .tree.tree-intermediate .tree-branch-header .tree-branch-name {
+  position: relative;
+  left: 10px;
+  padding-left: 2px;
 }
 .fuelux .wizard {
   *zoom: 1;
