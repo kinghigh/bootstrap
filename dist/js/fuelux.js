@@ -2885,10 +2885,15 @@
 				var self = this;
 				var $parent = ( $el.hasClass( 'tree' ) ) ? $el : $el.parent();
 				var loader = $parent.find( '.tree-loader:eq(0)' );
+				var intermediate = this.options.intermediate;
 
 				loader.removeClass( 'hide' );
+
 				this.options.dataSource( $parent.data(), function( items ) {
 					loader.addClass( 'hide' );
+
+					var checkBoxElem = $parent.find( '.checkbox' ).first();
+					var checked = checkBoxElem.checkbox( 'isChecked' );
 
 					$.each( items.data, function( index, value ) {
 						var $entity;
@@ -2897,6 +2902,9 @@
 							$entity = self.$element.find( '[data-template=treebranch]:eq(0)' ).clone().removeClass( 'hide' ).removeAttr( 'data-template' );
 							$entity.data( value );
 							$entity.find( '.tree-branch-name > .tree-label' ).html( value.name );
+							if ( checked && intermediate ) {
+								$entity.find( '.checkbox' ).checkbox( 'check' );
+							}
 						} else {
 							if ( value.type === 'item' ) {
 								$entity = self.$element.find( '[data-template=treeitem]:eq(0)' ).clone().removeClass( 'hide' ).removeAttr( 'data-template' );
@@ -2963,6 +2971,7 @@
 					// return newly populated folder
 					self.$element.trigger( 'loaded.fu.tree', $parent );
 				} );
+
 			},
 
 			selectItem: function( el ) {
@@ -3064,6 +3073,7 @@
 
 					}
 				}
+
 
 				this.$element.trigger( eventType, $branch.data() );
 			},

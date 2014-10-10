@@ -1542,6 +1542,10 @@ END
   background-color: transparent;
   color: #000;
 }
+.fuelux .tree.tree-intermediate .tree-branch.tree-selected > .tree-branch-header .tree-branch-name:hover {
+  background-color: transparent;
+  color: #000;
+}
 .fuelux .wizard {
   *zoom: 1;
   border: 1px solid #d4d4d4;
