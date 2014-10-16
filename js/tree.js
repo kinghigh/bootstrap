@@ -398,14 +398,28 @@
 				});
 
 				if (all && checked) {
-					parent.find('.checkbox').first().checkbox('check');
-					checkSiblings(parent);
+					if (parent.hasClass('tree-branch')) {
+						parent.find('.checkbox').first().checkbox('check');
+					}
+					if (parent.parent().parent().hasClass('tree-branch')){
+						checkSiblings(parent);
+					}
+
 				} else if (all && !checked) {
-					parent.children('input[type="checkbox"]').prop("checked", checked);
-					parent.children('input[type="checkbox"]').prop("indeterminate", (parent.find('input[type="checkbox"]:checked').length > 0));
-					checkSiblings(parent);
+					if (parent.hasClass('tree-branch')) {
+						parent.find('.checkbox').checkbox('uncheck');
+						if (parent.find('input[type="checkbox"]:checked').length > 0) {
+							parent.find('.checkbox').checkbox('intermediate');
+						}
+						checkSiblings(parent);
+					}
+					else {
+						if (el.find('.checkbox').first().checkbox('isChecked')){
+							el.find('.checkbox').first().checkbox('uncheck');
+						}
+					}
 				} else {
-					if (parent.hasClass('tree-branch')){
+					if (parent.hasClass('tree-branch') && !parent.find('.checkbox').first().checkbox('isIntermediate')){
 						parent.find('.checkbox').first().checkbox('intermediate');
 					}
 

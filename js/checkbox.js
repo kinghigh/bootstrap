@@ -119,6 +119,9 @@
 		isChecked: function () {
 			return this.state.checked;
 		},
+		isIntermediate: function () {
+			return this.state.intermediate;
+		},
 
 		toggle: function() {
 			this.state.checked = !this.state.checked;
